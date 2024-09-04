@@ -1,0 +1,38 @@
+.sidebar {
+  width: 80px; /* Increase width to center icons */
+  height: 100vh;
+  background-color: #1da1f2; /* Twitter blue */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000; /* Ensures the sidebar is on top of other content */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2); /* Add shadow for a 3D effect */
+  transition: width 0.3s ease; /* Animate width on hover */
+}
+
+.sidebar:hover {
+  width: 100px; /* Expand width on hover */
+}
+
+.sidebar-item {
+  margin: 20px 0;
+  transition: transform 0.3s ease; /* Add animation for icon scaling */
+}
+
+.sidebar-item:hover {
+  transform: scale(1.2); /* Scale up icons on hover */
+}
+
+.icon {
+  color: white;
+  font-size: 24px;
+  transition: color 0.3s ease; /* Animate color change */
+}
+
+.sidebar-item:hover .icon {
+  color: #ffac33; /* Change icon color on hover */
+}

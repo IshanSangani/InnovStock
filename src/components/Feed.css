@@ -1,0 +1,121 @@
+.feed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.post-form {
+  display: flex;
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+}
+
+.post-form input {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.post-form button {
+  margin-left: 10px;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #1da1f2;
+  color: white;
+  cursor: pointer;
+}
+
+.post-form button:hover {
+  background-color: #0d95e8;
+}
+
+.posts {
+  width: 100%;
+}
+
+.post {
+  display: flex;
+  align-items: flex-start;
+  border-bottom: 1px solid #ddd;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #fff;
+}
+
+.profile-pic {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+}
+
+.post-content {
+  flex: 1;
+}
+
+.profile-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.profile-info h3 {
+  margin: 0;
+  margin-right: 10px;
+}
+
+.job-title {
+  font-size: 0.9em;
+  color: #888;
+  margin-right: 10px;
+}
+
+.verified {
+  color: #1da1f2;
+  font-size: 1.2em;
+  margin-left: 5px;
+}
+
+.post-content p {
+  margin: 5px 0;
+}
+
+.chart {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  margin-top: 10px;
+}
+
+.timestamp {
+  display: block;
+  color: #888;
+  font-size: 0.8em;
+  margin-top: 5px;
+}
+
+.post-actions {
+  display: flex;
+  margin-top: 10px;
+}
+
+.action-button {
+  background: none;
+  border: none;
+  color: #1da1f2;
+  cursor: pointer;
+  margin-right: 10px;
+  font-size: 1.2em;
+}
+
+.action-button:hover {
+  color: #0d95e8;
+}

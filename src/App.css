@@ -1,0 +1,111 @@
+/* Root container */
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+/* Logo styles */
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+/* Card styles */
+.card {
+  padding: 2em;
+}
+
+/* Read the docs link */
+.read-the-docs {
+  color: #888;
+}
+
+/* New styles for layout and animations */
+
+/* Main content area */
+.content {
+  margin-left: 80px; /* Adjust based on sidebar width */
+  padding: 20px;
+  flex-grow: 1;
+  background-color: #f5f8fa; /* Light background for content */
+  height: 100vh;
+  overflow-y: auto;
+  opacity: 0;
+  animation: fadeIn 1s ease forwards; /* Fade-in animation for content */
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Sidebar styles */
+.sidebar {
+  width: 80px; /* Sidebar width */
+  height: 100vh;
+  background-color: #1da1f2; /* Twitter blue */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000; /* Ensure it's on top */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2); /* Shadow effect */
+  transition: width 0.3s ease; /* Animate width on hover */
+}
+
+.sidebar:hover {
+  width: 100px; /* Expand width on hover */
+}
+
+.sidebar-item {
+  margin: 20px 0;
+  transition: transform 0.3s ease; /* Add animation for icon scaling */
+}
+
+.sidebar-item:hover {
+  transform: scale(1.2); /* Scale up icons on hover */
+}
+
+.icon {
+  color: white;
+  font-size: 24px;
+  transition: color 0.3s ease; /* Animate color change */
+}
+
+.sidebar-item:hover .icon {
+  color: #ffac33; /* Change icon color on hover */
+}

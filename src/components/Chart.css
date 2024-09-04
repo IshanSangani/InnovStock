@@ -1,0 +1,15 @@
+.chart-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 20px auto;
+    background-color: #ffffff; /* White background */
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .chart {
+    max-width: 100%;
+    border-radius: 10px;
+    border: 1px solid #e1e8ed;
+  }
+  
