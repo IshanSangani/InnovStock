@@ -24,22 +24,13 @@ app.use(express.urlencoded({
 app.use(express.json());
 app.use(cookieParser());
 const corsOptions = {
-    origin: true, // This will allow all origins during development
+    origin: ["https://innov-stock-9f7f.vercel.app", "http://localhost:3000"],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     exposedHeaders: ['*', 'Authorization']
-};
+}
 app.use(cors(corsOptions));
-
-// Add this before your routes to debug requests
-app.use((req, res, next) => {
-    console.log(`${req.method} ${req.path}`, {
-        body: req.body,
-        cookies: req.cookies
-    });
-    next();
-});
 
 // api
 app.use("/api/v1/user",userRoute);
