@@ -127,28 +127,31 @@ const Profile = () => {
     }
 
     const followAndUnfollowHandler = async () => {
-        if(user.following.includes(id)){
-            try {
-                axios.defaults.withCredentials = true;
-                const res = await axios.post(`${USER_API_END_POINT}/unfollow/${id}`, {id:user?._id});
+        try {
+            const endpoint = user.following.includes(id) ? 'unfollow' : 'follow';
+            const res = await axios.post(
+                `${USER_API_END_POINT}/${endpoint}/${id}`,
+                { id: user?._id },
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            if (res.data.success) {
                 dispatch(followingUpdate(id));
                 dispatch(getRefresh());
                 toast.success(res.data.message);
-            } catch (error) {
-                toast.error(error.response.data.message);
+            } else {
+                toast.error(res.data.message || 'Action failed');
             }
-        } else {
-            try {
-                axios.defaults.withCredentials = true;
-                const res = await axios.post(`${USER_API_END_POINT}/follow/${id}`, {id:user?._id});
-                dispatch(followingUpdate(id));
-                dispatch(getRefresh());
-                toast.success(res.data.message);
-            } catch (error) {
-                toast.error(error.response.data.message);
-            }
+        } catch (error) {
+            console.error('Follow/Unfollow error:', error);
+            toast.error(error.response?.data?.message || 'Failed to update follow status');
         }
-    }
+    };
 
     return (
         <div className='w-[50%] border-l border-r border-gray-200'>
