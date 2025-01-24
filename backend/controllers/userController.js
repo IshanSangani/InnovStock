@@ -61,10 +61,11 @@ export const Login = async (req, res) => {
             });
         }
 
-        // Only select necessary fields
+        // Only select necessary fields and use lean() for better performance
         const user = await User.findOne({ email })
-            .select('+password')
-            .populate('profile', 'profilePicture');
+            .select('+password -__v')
+            .populate('profile', 'profilePicture -_id')
+            .lean();
 
         if (!user) {
             return res.status(401).json({
@@ -87,9 +88,7 @@ export const Login = async (req, res) => {
             { expiresIn: "1d" }
         );
 
-        // Remove password from user object
-        const userResponse = user.toObject();
-        delete userResponse.password;
+        delete user.password;
 
         const cookieOptions = {
             httpOnly: true,
@@ -104,7 +103,7 @@ export const Login = async (req, res) => {
             .status(200)
             .json({
                 message: "Login successful",
-                user: userResponse,
+                user,
                 success: true,
                 token
             });

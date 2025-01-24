@@ -30,8 +30,9 @@ const Login = () => {
               'Content-Type': 'application/json'
             },
             withCredentials: true,
-            timeout: 25000,
-            validateStatus: status => status < 500 // Accept all status codes less than 500
+            timeout: 10000, // Reduced timeout
+            validateStatus: status => status < 500,
+            timeoutErrorMessage: 'Request took too long - please try again'
           }
         ); 
         
@@ -46,7 +47,12 @@ const Login = () => {
           response: error.response?.data,
           status: error.response?.status
         });
-        toast.error(error?.response?.data?.message || 'Login failed. Please try again.');
+        
+        const errorMessage = error.code === 'ECONNABORTED' 
+          ? 'Request timeout - please try again'
+          : error?.response?.data?.message || 'Login failed. Please try again.';
+          
+        toast.error(errorMessage);
       } finally {
         setLoading(false);
       }

@@ -1,15 +1,16 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-dotenv.config({
-    path:"../config/.env"
-})
+
+dotenv.config();
+
 const databaseConnection = async () => {
     try {
         const conn = await mongoose.connect(process.env.MONGO_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
-            serverSelectionTimeoutMS: 10000,
-            socketTimeoutMS: 45000,
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 30000,
+            connectTimeoutMS: 10000
         });
         console.log("Connected to MongoDB");
         return conn;
@@ -18,4 +19,5 @@ const databaseConnection = async () => {
         process.exit(1);
     }
 };
+
 export default databaseConnection;
