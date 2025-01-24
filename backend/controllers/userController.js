@@ -284,7 +284,7 @@ export const follow = async (req, res) => {
                 message: "Already following this user"
             });
         }
-
+        //more
         // Update following/followers
         currentUser.following.push(id);
         await currentUser.save();
