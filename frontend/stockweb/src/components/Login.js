@@ -20,69 +20,34 @@ const Login = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     setLoading(true);
-    if (isLogin) {
-      try {
+    try {
+        console.log("Attempting login with email:", email);
         const res = await axios.post(
-          `${USER_API_END_POINT}/login`, 
-          { email, password }, 
-          {
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            withCredentials: true,
-            timeout: 30000, // Increased to 30 seconds
-            retries: 3,
-            retryDelay: 1000,
-            validateStatus: status => status < 500
-          }
-        ); 
+            `${USER_API_END_POINT}/login`,
+            { email, password },
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                withCredentials: true
+            }
+        );
         
-        if(res?.data?.success) {
-          localStorage.setItem('token', res.data.token);
-          dispatch(getUser(res?.data?.user));
-          navigate("/");
-          toast.success(res?.data?.message);
+        if (res?.data?.success) {
+            localStorage.setItem('token', res.data.token);
+            dispatch(getUser(res?.data?.user));
+            navigate("/");
+            toast.success(res?.data?.message);
         }
-      } catch (error) {
+    } catch (error) {
         console.error('Login error details:', {
-          message: error.message,
-          response: error.response?.data,
-          status: error.response?.status,
-          code: error.code
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status
         });
-        
-        let errorMessage;
-        if (error.code === 'ECONNABORTED') {
-          errorMessage = 'Server is taking too long to respond. Please try again.';
-        } else if (error.response?.data?.message) {
-          errorMessage = error.response.data.message;
-        } else {
-          errorMessage = 'Login failed. Please try again.';
-        }
-        
-        toast.error(errorMessage);
-      } finally {
+        toast.error(error.response?.data?.message || 'Login failed');
+    } finally {
         setLoading(false);
-      }
-    } else {
-      // signup
-      try {
-        const res = await axios.post(`${USER_API_END_POINT}/register`, { name, username, email, password }, {
-          headers: {
-            'Content-Type': "application/json"
-          },
-          withCredentials: true
-        }); 
-        if(res.data.success){
-          setIsLogin(true);
-          toast.success(res.data.message);
-        }
-      } catch (error) {
-        toast.error(error.response.data.message); // Changed to toast.error
-        console.log(error);
-      } finally {
-        setLoading(false); // Set loading to false after request completes
-      }
     }
   }
 

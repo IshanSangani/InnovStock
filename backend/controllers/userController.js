@@ -51,9 +51,7 @@ export const Register = async (req, res) => {
 
 export const Login = async (req, res) => {
     try {
-        console.log("Login request body:", req.body);
-        console.log("Login request headers:", req.headers);
-        
+        console.log("Login attempt received with email:", req.body.email);
         const { email, password } = req.body;
         
         if (!email || !password) {
@@ -64,31 +62,41 @@ export const Login = async (req, res) => {
             });
         }
 
-        const user = await User.findOne({ email });
-        console.log("User found:", !!user);
+        const user = await User.findOne({ email }).select('+password');
+        console.log("User found in database:", !!user);
 
         if (!user) {
             return res.status(401).json({
-                message: "Incorrect email or password",
+                message: "User not found with this email",
                 success: false
             });
         }
 
         const isMatch = await bcryptjs.compare(password, user.password);
-        console.log("Password match:", isMatch);
+        console.log("Password match result:", isMatch);
 
         if (!isMatch) {
             return res.status(401).json({
-                message: "Incorrect email or password",
+                message: "Incorrect password",
                 success: false
             });
         }
+
+        // Get profile separately if needed
+        const profile = await Profile.findOne({ userId: user._id })
+            .select('profilePicture')
+            .lean()
+            .exec();
+
+        user.profile = profile;
 
         const token = jwt.sign(
             { userId: user._id },
             process.env.TOKEN_SECRET,
             { expiresIn: "1d" }
         );
+
+        delete user.password;
 
         const cookieOptions = {
             httpOnly: true,
@@ -97,9 +105,7 @@ export const Login = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000
         };
 
-        delete user.password;
-        
-        console.log("Login successful, sending response");
+        console.log("Login successful for:", email);
         return res
             .cookie("token", token, cookieOptions)
             .status(200)
@@ -111,13 +117,16 @@ export const Login = async (req, res) => {
             });
 
     } catch (error) {
-        console.error("Login error:", error);
+        console.error("Login error details:", {
+            message: error.message,
+            stack: error.stack
+        });
         return res.status(500).json({
             message: "Server error during login",
             success: false
         });
     }
-};
+}
 
 export const logout = (req, res) => {
     return res.cookie("token", "", { expiresIn: new Date(Date.now()) }).json({
