@@ -25,7 +25,10 @@ const userSlice = createSlice({
         },
         // multiple actions
         getUser:(state,action)=>{
-            state.user = action.payload;
+            state.user = {
+                ...action.payload,
+                following: action.payload.following || []
+            };
         },
         getOtherUsers:(state,action)=>{
             state.otherUsers = action.payload;
@@ -34,14 +37,16 @@ const userSlice = createSlice({
             state.profile = action.payload;
         },
         followingUpdate:(state,action)=>{
-            // unfollow
-            if(state.user.following.includes(action.payload)){
-                state.user.following = state.user.following.filter((itemId)=>{
-                    return itemId !== action.payload;
-                })
-            }else{
-                // follow
-                state.user.following.push(action.payload);
+            if (!state.user.following) {
+                state.user.following = [];
+            }
+            const userId = action.payload;
+            const isFollowing = state.user.following.includes(userId);
+            
+            if (isFollowing) {
+                state.user.following = state.user.following.filter(id => id !== userId);
+            } else {
+                state.user.following.push(userId);
             }
         },
         setProfile:(state,action)=>{

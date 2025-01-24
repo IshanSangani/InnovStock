@@ -128,7 +128,19 @@ const Profile = () => {
 
     const followAndUnfollowHandler = async () => {
         try {
+            if (!user?.following) {
+                console.error('User following data is missing');
+                return;
+            }
+
             const endpoint = user.following.includes(id) ? 'unfollow' : 'follow';
+            console.log('Follow/unfollow attempt:', {
+                endpoint,
+                userId: user?._id,
+                targetId: id,
+                currentFollowing: user.following
+            });
+
             const res = await axios.post(
                 `${USER_API_END_POINT}/${endpoint}/${id}`,
                 { id: user?._id },
