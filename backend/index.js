@@ -7,44 +7,40 @@ import tweetRoute from "./routes/tweetRoute.js";
 import wishlistRoute from "./routes/wishlistRoute.js";
 import cors from "cors";
 
+dotenv.config();
+const app = express();
 
-
-
-
-dotenv.config({
-    path:".env"
-})
-databaseConnection();
-const app = express(); 
-
-// middlewares
-app.use(express.urlencoded({
-    extended:true
-}));
+// Basic middlewares
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// CORS configuration
 const corsOptions = {
-    origin: ["http://localhost:3000", "https://your-frontend-vercel-url.vercel.app"],
+    origin: ["http://localhost:3000", "https://your-frontend-url.vercel.app"],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token'],
     exposedHeaders: ['*', 'Authorization']
-}
+};
 app.use(cors(corsOptions));
 
-// api
-app.use("/api/v1/user",userRoute);
+// Health check endpoint
+app.get('/', (req, res) => {
+    res.status(200).json({ status: 'ok' });
+});
+
+// Initialize routes before DB connection
+app.use("/api/v1/user", userRoute);
 app.use("/api/v1/tweet", tweetRoute);
 app.use("/api/v1/wishlist", wishlistRoute);
 
-// Add this before your other routes
-app.get('/', (req, res) => {
-    res.json({ message: 'Server is running' });
-});
- 
+// Connect to database in background
+databaseConnection().catch(console.error);
 
-app.listen(process.env.PORT,() => {
-    console.log(`Server listen at port ${process.env.PORT}`);
-})
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server listening at port ${PORT}`);
+});
 
 
