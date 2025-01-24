@@ -22,12 +22,16 @@ const Login = () => {
     setLoading(true);
     if (isLogin) {
       try {
-        const res = await axios.post(`${USER_API_END_POINT}/login`, { email, password }, {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          withCredentials: true
-        }); 
+        const res = await axios.post(`${USER_API_END_POINT}/login`, 
+          { email, password }, 
+          {
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            withCredentials: true,
+            timeout: 15000 // 15 seconds timeout
+          }
+        ); 
         
         if(res?.data?.success) {
           dispatch(getUser(res?.data?.user));
@@ -35,8 +39,12 @@ const Login = () => {
           toast.success(res?.data?.message);
         }
       } catch (error) {
-        console.error('Login error:', error);
-        toast.error(error?.response?.data?.message || 'Login failed');
+        console.error('Login error details:', {
+          message: error.message,
+          response: error.response?.data,
+          status: error.response?.status
+        });
+        toast.error(error?.response?.data?.message || 'Login failed. Please try again.');
       } finally {
         setLoading(false);
       }

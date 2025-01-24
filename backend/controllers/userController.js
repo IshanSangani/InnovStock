@@ -51,23 +51,28 @@ export const Register = async (req, res) => {
 
 export const Login = async (req, res) => {
     try {
+        console.log("Login attempt received:", { email: req.body.email });
         const { email, password } = req.body;
+        
         if (!email || !password) {
-            return res.status(401).json({
+            return res.status(400).json({
                 message: "All fields are required.",
                 success: false
-            })
-        };
-        
-        // Populate profile data
-        const user = await User.findOne({ email }).populate('profile');
+            });
+        }
+
+        // Only select necessary fields
+        const user = await User.findOne({ email })
+            .select('+password')
+            .populate('profile', 'profilePicture');
+
         if (!user) {
             return res.status(401).json({
                 message: "Incorrect email or password",
                 success: false
-            })
+            });
         }
-        
+
         const isMatch = await bcryptjs.compare(password, user.password);
         if (!isMatch) {
             return res.status(401).json({
@@ -75,29 +80,38 @@ export const Login = async (req, res) => {
                 success: false
             });
         }
-        
-        const tokenData = {
-            userId: user._id
-        }
-        const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET, { expiresIn: "1d" });
 
-        // Add cookie options
+        const token = jwt.sign(
+            { userId: user._id },
+            process.env.TOKEN_SECRET,
+            { expiresIn: "1d" }
+        );
+
+        // Remove password from user object
+        const userResponse = user.toObject();
+        delete userResponse.password;
+
         const cookieOptions = {
             httpOnly: true,
-            secure: true, // Always use secure in production
-            sameSite: 'none', // Important for cross-origin requests
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+            secure: true,
+            sameSite: 'none',
+            maxAge: 7 * 24 * 60 * 60 * 1000
         };
 
-        return res.cookie("token", token, cookieOptions).status(200).json({
-            message: "User logged in successfully.",
-            user,
-            success: true
-        });
+        console.log("Login successful for:", email);
+        return res
+            .cookie("token", token, cookieOptions)
+            .status(200)
+            .json({
+                message: "Login successful",
+                user: userResponse,
+                success: true
+            });
+
     } catch (error) {
-        console.log(error);
+        console.error("Login error:", error);
         return res.status(500).json({
-            message: "Server error",
+            message: "Server error during login",
             success: false
         });
     }
