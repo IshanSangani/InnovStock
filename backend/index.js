@@ -19,10 +19,7 @@ app.use(cookieParser());
 // CORS configuration
 const corsOptions = {
     origin: [
-        "https://innov-stock.vercel.app",
-        "https://innov-stock-git-main-ishan-sanganis-projects.vercel.app",
-        "https://innov-stock-4l5c1yz6u-ishan-sanganis-projects.vercel.app",
-        "http://localhost:3000"
+        "*"
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -34,7 +31,10 @@ app.use(cors(corsOptions));
 
 // Add this before your routes
 app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization');
     next();
 });
 
