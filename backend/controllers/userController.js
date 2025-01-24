@@ -63,8 +63,8 @@ export const Login = async (req, res) => {
 
         // Only select necessary fields and use lean() for better performance
         const user = await User.findOne({ email })
-            .select('+password -__v')
-            .populate('profile', 'profilePicture -_id')
+            .select('name username email password profile')
+            .populate('profile', 'profilePicture')
             .lean();
 
         if (!user) {
@@ -110,8 +110,12 @@ export const Login = async (req, res) => {
 
     } catch (error) {
         console.error("Login error:", error);
+        const errorMessage = error.code === 31254 
+            ? "Database query error"
+            : "Server error during login";
+        
         return res.status(500).json({
-            message: "Server error during login",
+            message: errorMessage,
             success: false
         });
     }
