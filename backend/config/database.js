@@ -3,32 +3,19 @@ import dotenv from "dotenv";
 dotenv.config({
     path:"../config/.env"
 })
-
-let isConnected = false; // track the connection
-
 const databaseConnection = async () => {
-    if (isConnected) {
-        console.log('Using existing database connection');
-        return;
-    }
-
     try {
-        const db = await mongoose.connect(process.env.MONGO_URI, {
+        const conn = await mongoose.connect(process.env.MONGO_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
-            serverSelectionTimeoutMS: 5000,
-            connectTimeoutMS: 10000,
+            serverSelectionTimeoutMS: 10000,
+            socketTimeoutMS: 45000,
         });
-
-        isConnected = true;
-        console.log('New database connection established');
-        return db;
+        console.log("Connected to MongoDB");
+        return conn;
     } catch (error) {
-        console.log('MongoDB connection error:', error);
-        isConnected = false;
-        // Don't throw the error, just return null
-        return null;
+        console.error("MongoDB connection error:", error);
+        process.exit(1);
     }
 };
-
 export default databaseConnection;
