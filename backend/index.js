@@ -31,7 +31,7 @@ app.use(cors(corsOptions));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'ok' });
+    res.status(200).json({ status: 'ok', message: 'Server is running' });
 });
 
 // Connect to database before setting up routes
