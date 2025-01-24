@@ -61,15 +61,14 @@ export const Login = async (req, res) => {
             });
         }
 
-        // Only select necessary fields and use lean() for better performance
+        // Find user and include following/followers
         const user = await User.findOne({ email })
-            .select('name username email password')
-            .lean()
-            .exec();
+            .select('name username email password following followers profile')
+            .lean();
 
         if (!user) {
-            return res.status(401).json({
-                message: "Incorrect email or password",
+            return res.status(404).json({
+                message: "User not found",
                 success: false
             });
         }
@@ -81,6 +80,10 @@ export const Login = async (req, res) => {
             .exec();
 
         user.profile = profile;
+
+        // Initialize arrays if they don't exist
+        user.following = user.following || [];
+        user.followers = user.followers || [];
 
         const isMatch = await bcryptjs.compare(password, user.password);
         if (!isMatch) {
@@ -111,7 +114,15 @@ export const Login = async (req, res) => {
             .status(200)
             .json({
                 message: "Login successful",
-                user,
+                user: {
+                    _id: user._id,
+                    name: user.name,
+                    username: user.username,
+                    email: user.email,
+                    following: user.following,
+                    followers: user.followers,
+                    profile: user.profile
+                },
                 success: true,
                 token
             });

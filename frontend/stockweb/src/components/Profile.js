@@ -128,13 +128,13 @@ const Profile = () => {
 
     const followAndUnfollowHandler = async () => {
         try {
-            if (!user?.following) {
-                console.error('User following data is missing');
-                return;
+            // Initialize following array if it doesn't exist
+            if (!user.following) {
+                user.following = [];
             }
 
             const endpoint = user.following.includes(id) ? 'unfollow' : 'follow';
-            console.log('Follow/unfollow attempt:', {
+            console.log('Follow attempt:', {
                 endpoint,
                 userId: user?._id,
                 targetId: id,
