@@ -27,7 +27,7 @@ const corsOptions = {
     origin: ["https://innov-stock-9f7f.vercel.app", "http://localhost:3000"],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token'],
     exposedHeaders: ['*', 'Authorization']
 }
 app.use(cors(corsOptions));
@@ -46,5 +46,14 @@ app.get('/', (req, res) => {
 app.listen(process.env.PORT,() => {
     console.log(`Server listen at port ${process.env.PORT}`);
 })
+
+// Add error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({
+        message: "Something went wrong!",
+        success: false
+    });
+});
 
 

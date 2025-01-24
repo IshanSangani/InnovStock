@@ -1,12 +1,6 @@
-import axios from 'axios';
-
-// Configure axios defaults
-axios.defaults.withCredentials = true;
-axios.defaults.headers.common['Content-Type'] = 'application/json';
-
-export const USER_API_END_POINT = process.env.REACT_APP_API_URL + "/api/v1/user";
-export const TWEET_API_END_POINT = process.env.REACT_APP_API_URL + "/api/v1/tweet";
-export const WISHLIST_API_END_POINT = process.env.REACT_APP_API_URL + "/api/v1/wishlist";
+export const USER_API_END_POINT = process.env.REACT_APP_API_URL + "api/v1/user";
+export const TWEET_API_END_POINT = process.env.REACT_APP_API_URL + "api/v1/tweet";
+export const WISHLIST_API_END_POINT = process.env.REACT_APP_API_URL + "api/v1/wishlist";
 
 export const timeSince = (timestamp) => {
     let time = Date.parse(timestamp);

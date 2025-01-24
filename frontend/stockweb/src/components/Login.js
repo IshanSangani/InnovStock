@@ -19,26 +19,26 @@ const Login = () => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    setLoading(true); // Set loading to true when request starts
+    setLoading(true);
     if (isLogin) {
-      // login
       try {
         const res = await axios.post(`${USER_API_END_POINT}/login`, { email, password }, {
           headers: {
-            'Content-Type': "application/json"
+            'Content-Type': 'application/json'
           },
           withCredentials: true
         }); 
-        dispatch(getUser(res?.data?.user));
-        if(res.data.success){
+        
+        if(res?.data?.success) {
+          dispatch(getUser(res?.data?.user));
           navigate("/");
-          toast.success(res.data.message);
+          toast.success(res?.data?.message);
         }
       } catch (error) {
-        toast.error(error.response.data.message); // Changed to toast.error
-        console.log(error);
+        console.error('Login error:', error);
+        toast.error(error?.response?.data?.message || 'Login failed');
       } finally {
-        setLoading(false); // Set loading to false after request completes
+        setLoading(false);
       }
     } else {
       // signup
