@@ -30,9 +30,10 @@ const Login = () => {
               'Content-Type': 'application/json'
             },
             withCredentials: true,
-            timeout: 10000, // Reduced timeout
-            validateStatus: status => status < 500,
-            timeoutErrorMessage: 'Request took too long - please try again'
+            timeout: 30000, // Increased to 30 seconds
+            retries: 3,
+            retryDelay: 1000,
+            validateStatus: status => status < 500
           }
         ); 
         
@@ -45,13 +46,19 @@ const Login = () => {
         console.error('Login error details:', {
           message: error.message,
           response: error.response?.data,
-          status: error.response?.status
+          status: error.response?.status,
+          code: error.code
         });
         
-        const errorMessage = error.code === 'ECONNABORTED' 
-          ? 'Request timeout - please try again'
-          : error?.response?.data?.message || 'Login failed. Please try again.';
-          
+        let errorMessage;
+        if (error.code === 'ECONNABORTED') {
+          errorMessage = 'Server is taking too long to respond. Please try again.';
+        } else if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        } else {
+          errorMessage = 'Login failed. Please try again.';
+        }
+        
         toast.error(errorMessage);
       } finally {
         setLoading(false);

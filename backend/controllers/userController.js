@@ -63,9 +63,9 @@ export const Login = async (req, res) => {
 
         // Only select necessary fields and use lean() for better performance
         const user = await User.findOne({ email })
-            .select('name username email password profile')
-            .populate('profile', 'profilePicture')
-            .lean();
+            .select('name username email password')
+            .lean()
+            .exec();
 
         if (!user) {
             return res.status(401).json({
@@ -73,6 +73,14 @@ export const Login = async (req, res) => {
                 success: false
             });
         }
+
+        // Get profile separately if needed
+        const profile = await Profile.findOne({ userId: user._id })
+            .select('profilePicture')
+            .lean()
+            .exec();
+
+        user.profile = profile;
 
         const isMatch = await bcryptjs.compare(password, user.password);
         if (!isMatch) {
