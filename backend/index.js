@@ -18,7 +18,7 @@ app.use(cookieParser());
 
 // CORS configuration
 const corsOptions = {
-    origin: ["https://innov-stock-9f7f.vercel.app", "http://localhost:3000"],
+    origin: ["https://innov-stock-9f7f.vercel.app", "http://localhost:3000","https://innov-stock.vercel.app"],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token'],
