@@ -22,14 +22,16 @@ const Login = () => {
     setLoading(true);
     if (isLogin) {
       try {
-        const res = await axios.post(`${USER_API_END_POINT}/login`, 
+        const res = await axios.post(
+          `${USER_API_END_POINT}/login`, 
           { email, password }, 
           {
             headers: {
               'Content-Type': 'application/json'
             },
             withCredentials: true,
-            timeout: 15000 // 15 seconds timeout
+            timeout: 25000,
+            validateStatus: status => status < 500 // Accept all status codes less than 500
           }
         ); 
         
