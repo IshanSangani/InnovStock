@@ -128,41 +128,45 @@ const Profile = () => {
 
     const followAndUnfollowHandler = async () => {
         try {
-            // Initialize following array if it doesn't exist
-            if (!user.following) {
-                user.following = [];
-            }
-
-            const endpoint = user.following.includes(id) ? 'unfollow' : 'follow';
+            // Ensure user.following exists
+            const following = user.following || [];
+            const isFollowing = following.includes(id);
+            
+            const endpoint = isFollowing ? 'unfollow' : 'follow';
             console.log('Follow attempt:', {
                 endpoint,
                 userId: user?._id,
                 targetId: id,
-                currentFollowing: user.following
+                currentFollowing: following
             });
 
-            const res = await axios.post(
+            const response = await axios.post(
                 `${USER_API_END_POINT}/${endpoint}/${id}`,
-                { id: user?._id },
+                {},
                 {
-                    withCredentials: true,
                     headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
                         'Content-Type': 'application/json'
                     }
                 }
             );
 
-            if (res.data.success) {
+            if (response.data.success) {
                 dispatch(followingUpdate(id));
-                dispatch(getRefresh());
-                toast.success(res.data.message);
+                toast.success(response.data.message);
             } else {
-                toast.error(res.data.message || 'Action failed');
+                toast.error(response.data.message || 'Failed to update follow status');
             }
         } catch (error) {
             console.error('Follow/Unfollow error:', error);
             toast.error(error.response?.data?.message || 'Failed to update follow status');
         }
+    };
+
+    // Update the follow button text based on following status
+    const getFollowButtonText = () => {
+        const following = user?.following || [];
+        return following.includes(id) ? 'Unfollow' : 'Follow';
     };
 
     return (
@@ -215,10 +219,10 @@ const Profile = () => {
                         </button>
                     ) : (
                         <button 
-                            onClick={followAndUnfollowHandler} 
-                            className='px-4 py-1 bg-black text-white rounded-full'
+                            onClick={followAndUnfollowHandler}
+                            className="follow-button"
                         >
-                            {user?.following?.includes(id) ? "Following" : "Follow"}
+                            {getFollowButtonText()}
                         </button>
                     )}
                 </div>

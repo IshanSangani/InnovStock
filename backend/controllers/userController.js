@@ -61,14 +61,15 @@ export const Login = async (req, res) => {
             });
         }
 
-        // Find user and include following/followers
+        // Only select necessary fields and use lean() for better performance
         const user = await User.findOne({ email })
-            .select('name username email password following followers profile')
-            .lean();
+            .select('name username email password')
+            .lean()
+            .exec();
 
         if (!user) {
-            return res.status(404).json({
-                message: "User not found",
+            return res.status(401).json({
+                message: "Incorrect email or password",
                 success: false
             });
         }
@@ -80,10 +81,6 @@ export const Login = async (req, res) => {
             .exec();
 
         user.profile = profile;
-
-        // Initialize arrays if they don't exist
-        user.following = user.following || [];
-        user.followers = user.followers || [];
 
         const isMatch = await bcryptjs.compare(password, user.password);
         if (!isMatch) {
@@ -114,15 +111,7 @@ export const Login = async (req, res) => {
             .status(200)
             .json({
                 message: "Login successful",
-                user: {
-                    _id: user._id,
-                    name: user.name,
-                    username: user.username,
-                    email: user.email,
-                    following: user.following,
-                    followers: user.followers,
-                    profile: user.profile
-                },
+                user,
                 success: true,
                 token
             });
@@ -262,54 +251,56 @@ export const updateProfile = async (req, res) => {
     }
 };
 
-export const follow = async(req, res) => {
+export const follow = async (req, res) => {
     try {
-        const loggedInUserId = req.body.id;
-        const userId = req.params.id;
+        const { id } = req.params; // ID of user to follow
+        const userId = req.user._id; // Current user's ID
 
-        if (!loggedInUserId || !userId) {
+        // Don't allow self-following
+        if (id === userId.toString()) {
             return res.status(400).json({
-                message: "Missing required user IDs",
-                success: false
+                success: false,
+                message: "You cannot follow yourself"
             });
         }
 
-        const [loggedInUser, user] = await Promise.all([
-            User.findById(loggedInUserId),
-            User.findById(userId)
-        ]);
-
-        if (!loggedInUser || !user) {
+        const userToFollow = await User.findById(id);
+        if (!userToFollow) {
             return res.status(404).json({
-                message: "User not found",
-                success: false
+                success: false,
+                message: "User to follow not found"
             });
         }
 
-        if (user.followers.includes(loggedInUserId)) {
+        const currentUser = await User.findById(userId);
+        if (!currentUser.following) {
+            currentUser.following = [];
+        }
+
+        // Check if already following
+        if (currentUser.following.includes(id)) {
             return res.status(400).json({
-                message: `Already following ${user.name}`,
-                success: false
+                success: false,
+                message: "Already following this user"
             });
         }
 
-        await Promise.all([
-            user.updateOne({ $push: { followers: loggedInUserId } }),
-            loggedInUser.updateOne({ $push: { following: userId } })
-        ]);
+        // Update following/followers
+        currentUser.following.push(id);
+        await currentUser.save();
 
-        return res.status(200).json({
-            message: `${loggedInUser.name} is now following ${user.name}`,
-            success: true
+        res.json({
+            success: true,
+            message: "Successfully followed user"
         });
     } catch (error) {
         console.error('Follow error:', error);
-        return res.status(500).json({
-            message: "Server error while following user",
-            success: false
+        res.status(500).json({
+            success: false,
+            message: "Internal server error"
         });
     }
-}
+};
 
 export const unfollow = async (req,res) => {
     try {

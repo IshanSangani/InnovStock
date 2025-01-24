@@ -40,13 +40,13 @@ const userSlice = createSlice({
             if (!state.user.following) {
                 state.user.following = [];
             }
-            const userId = action.payload;
-            const isFollowing = state.user.following.includes(userId);
+            const targetId = action.payload;
+            const isFollowing = state.user.following.includes(targetId);
             
             if (isFollowing) {
-                state.user.following = state.user.following.filter(id => id !== userId);
+                state.user.following = state.user.following.filter(id => id !== targetId);
             } else {
-                state.user.following.push(userId);
+                state.user.following.push(targetId);
             }
         },
         setProfile:(state,action)=>{
