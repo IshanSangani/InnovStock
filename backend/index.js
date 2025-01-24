@@ -14,7 +14,7 @@ import cors from "cors";
 dotenv.config({
     path:".env"
 })
-
+databaseConnection();
 const app = express(); 
 
 // middlewares
@@ -24,36 +24,27 @@ app.use(express.urlencoded({
 app.use(express.json());
 app.use(cookieParser());
 const corsOptions = {
-    origin: ["http://localhost:3000", "https://your-frontend-url.vercel.app"],
+    origin: ["http://localhost:3000", "https://your-frontend-vercel-url.vercel.app"],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token'],
     exposedHeaders: ['*', 'Authorization']
 }
 app.use(cors(corsOptions));
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'ok' });
-});
+// api
+app.use("/api/v1/user",userRoute);
+app.use("/api/v1/tweet", tweetRoute);
+app.use("/api/v1/wishlist", wishlistRoute);
 
-// Connect to database
-(async () => {
-    try {
-        await databaseConnection();
-        // Only set up routes after DB connection attempt
-        app.use("/api/v1/user", userRoute);
-        app.use("/api/v1/tweet", tweetRoute);
-        app.use("/api/v1/wishlist", wishlistRoute);
-    } catch (error) {
-        console.error('Failed to connect to database:', error);
-        // Continue anyway to allow health check endpoint
-    }
-})();
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server listening at port ${PORT}`);
+// Add this before your other routes
+app.get('/', (req, res) => {
+    res.json({ message: 'Server is running' });
 });
+ 
+
+app.listen(process.env.PORT,() => {
+    console.log(`Server listen at port ${process.env.PORT}`);
+})
 
 
