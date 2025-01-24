@@ -2,7 +2,7 @@ import {createSlice} from "@reduxjs/toolkit";
 const tweetSlice = createSlice({
     name:"tweet",
     initialState:{
-        tweets:null,
+        tweets:[],
         refresh:false,
         isActive:true
     },

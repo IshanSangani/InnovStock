@@ -5,6 +5,8 @@ import Home from './Home';
 import Feed from './Feed';
 import Profile from './Profile';
 import ChartPage from './ChartsPage';
+import WishlistPage from './WishlistPage';
+
 const Body = () => {
     const appRouter = createBrowserRouter([
         {
@@ -22,6 +24,10 @@ const Body = () => {
                 {
                     path: "/charts", 
                     element: <ChartPage />
+                },
+                {
+                    path: "/wishlist",
+                    element: <WishlistPage />
                 }
             ]
         },

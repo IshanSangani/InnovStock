@@ -11,17 +11,28 @@ import { useSelector, useDispatch } from "react-redux";
 import { getRefresh } from '../redux/tweetSlice';
 import { timeSince } from "../utils/constant";
 
+const DEFAULT_PROFILE_PIC = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
+
 const Tweet = ({ tweet }) => {
     const { user } = useSelector(store => store.user); 
-     
     const dispatch = useDispatch();
     
+    console.log("Tweet data:", {
+        id: tweet?._id,
+        userId: tweet?.userId?._id,
+        userProfile: tweet?.userId?.profile
+    });
+    
+    const tweetUser = tweet?.userId;
+    const hasLiked = tweet?.like?.includes(user?._id);
+    const profilePicUrl = tweetUser?.profile?.profilePicture || 
+                         "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
+
     const likeOrDislikeHandler = async (id) => {
         try {
             const res = await axios.put(`${TWEET_API_END_POINT}/like/${id}`, { id: user?._id }, {
                 withCredentials: true
             });
-            console.log(res);
             dispatch(getRefresh());
             toast.success(res.data.message);
         } catch (error) {
@@ -34,7 +45,6 @@ const Tweet = ({ tweet }) => {
         try {
             axios.defaults.withCredentials = true;
             const res = await axios.delete(`${TWEET_API_END_POINT}/delete/${id}`);
-            console.log(res);
             dispatch(getRefresh());
             toast.success(res.data.message);
         } catch (error) {
@@ -43,18 +53,27 @@ const Tweet = ({ tweet }) => {
         }
     }
 
-    // Check if the user has liked the tweet
-    const hasLiked = tweet?.like?.includes(user?._id);
-
     return (
         <div className='border-b border-gray-200'>
             <div>
                 <div className='flex p-4'>
-                    <Avatar src="https://pbs.twimg.com/profile_images/1703261403237502976/W0SFbJVS_400x400.jpg" size="40" round={true} />
-                    <div className=' ml-2 w-full'>
+                    <Avatar 
+                        src={profilePicUrl}
+                        size="40" 
+                        round={true} 
+                        alt={tweetUser?.name || "User"}
+                    />
+                    <div className='ml-2 w-full'>
                         <div className='flex items-center'>
-                            <h1 className='font-bold'>{tweet?.userDetails[0]?.name}</h1>
-                            <p className='text-gray-500 text-sm ml-1'>{`@${tweet?.userDetails[0]?.username} . ${timeSince(tweet?.createdAt)}`}</p>
+                            <h1 className='font-bold'>
+                                {tweetUser?.name || tweet?.userDetails?.[0]?.name || 'Unknown User'}
+                            </h1>
+                            <p className='text-gray-500 text-sm ml-1'>
+                                {tweetUser?.username ? 
+                                    `@${tweetUser.username} . ${timeSince(tweet?.createdAt)}` 
+                                    : ''
+                                }
+                            </p>
                         </div>
                         <div>
                             <p>{tweet?.description}</p>

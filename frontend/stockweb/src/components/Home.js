@@ -1,4 +1,4 @@
-import React,{useEffect} from 'react'
+import React, { useEffect } from 'react'
 import LeftSidebar from './LeftSidebar'
 import RightSidebar from './RightSidebar'
 import { Outlet, useNavigate } from "react-router-dom";
@@ -6,19 +6,26 @@ import useOtherUsers from '../hooks/useOtherUsers';
 import { useSelector } from "react-redux";
 import useGetMyTweets from '../hooks/useGetMyTweets';
 
-
 const Home = () => {
   const { user, otherUsers } = useSelector(store => store.user);
   const navigate = useNavigate();
 
-  useEffect(()=>{
+  useEffect(() => {
     if (!user) {
       navigate("/login");
     }
-  },[]);
+  }, [user, navigate]);
+
+  console.log("Current user:", user);
+  
   // custom Hook
   useOtherUsers(user?._id);
   useGetMyTweets(user?._id);
+
+  console.log("otherUsers in Home:", otherUsers);
+  console.log("otherUsers length:", otherUsers?.length);
+
+  if (!user) return null;
 
   return (
     <div className='flex justify-between w-[80%] mx-auto'>

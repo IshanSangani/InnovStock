@@ -1,6 +1,6 @@
 import React from 'react';
 import { TiHome } from "react-icons/ti";
-import { FaChartLine, FaBell, FaUser, FaBookmark, FaSignOutAlt } from "react-icons/fa"; // Removed unused imports
+import { FaChartLine, FaBell, FaUser,  FaSignOutAlt, FaStar } from "react-icons/fa"; // Removed unused imports
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
@@ -58,19 +58,20 @@ const LeftSidebar = () => {
                         </div>
                         <h1 className='font-bold text-lg ml-2'>Profile</h1>
                     </Link>
-                    <div className='flex items-center my-2 px-4 py-2 hover:bg-gray-200 hover:cursor-pointer rounded-full'>
+
+                    <Link to="/wishlist" className='flex items-center my-2 px-4 py-2 hover:bg-gray-200 hover:cursor-pointer rounded-full'>
                         <div>
-                            <FaBookmark size="24px" />
+                            <FaStar size="24px" />
                         </div>
-                        <h1 className='font-bold text-lg ml-2'>Bookmarks</h1>
-                    </div>
+                        <h1 className='font-bold text-lg ml-2'>Wishlist</h1>
+                    </Link>
                     <div onClick={logoutHandler} className='flex items-center my-2 px-4 py-2 hover:bg-gray-200 hover:cursor-pointer rounded-full'>
                         <div>
                             <FaSignOutAlt size="24px" />
                         </div>
                         <h1 className='font-bold text-lg ml-2'>Logout</h1>
                     </div>
-                    <button className='px-4 py-2 border-none text-md bg-[#1D9BF0] w-full rounded-full text-white font-bold'>Post</button>
+                    <button className='px-4 py-2 border-none text-md bg-[#1da3f0] w-full rounded-full text-white font-bold'>Post</button>
                 </div>
             </div>
         </div>

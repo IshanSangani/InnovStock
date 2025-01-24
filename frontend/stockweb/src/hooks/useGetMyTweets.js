@@ -14,8 +14,10 @@ const useGetMyTweets = (id) => {
             const res = await axios.get(`${TWEET_API_END_POINT}/alltweets/${id}`, {
                 withCredentials: true
             });
-            console.log(res);
-            dispatch(getAllTweets(res.data.tweets));
+            console.log("Tweets response:", res.data);
+            if (res.data.tweets) {
+                dispatch(getAllTweets(res.data.tweets));
+            }
         } catch (error) {
             console.log(error);
         }
@@ -24,19 +26,23 @@ const useGetMyTweets = (id) => {
         try {
             axios.defaults.withCredentials = true;
             const res = await axios.get(`${TWEET_API_END_POINT}/followingtweets/${id}`);
-            console.log(res);
-            dispatch(getAllTweets(res.data.tweets));
+            console.log("Following tweets:", res.data);
+            if (res.data.tweets) {
+                dispatch(getAllTweets(res.data.tweets));
+            }
         } catch (error) {
             console.log(error);
         }
     }
 
     useEffect(() => {
-        if(isActive){
-            fetchMyTweets();
-        }else{
-            followingTweetHandler();
+        if (id) {
+            if (isActive) {
+                fetchMyTweets();
+            } else {
+                followingTweetHandler();
+            }
         }
-    }, [isActive,refresh]);
+    }, [isActive, refresh, id, fetchMyTweets, followingTweetHandler]);
 };
 export default useGetMyTweets;
