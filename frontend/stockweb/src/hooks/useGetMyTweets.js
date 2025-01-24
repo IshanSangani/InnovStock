@@ -8,34 +8,32 @@ const useGetMyTweets = (id) => {
     const dispatch = useDispatch();
     const { refresh, isActive } = useSelector(store => store.tweet);
     
-
-    const fetchMyTweets = async () => {
-        try {
-            const res = await axios.get(`${TWEET_API_END_POINT}/alltweets/${id}`, {
-                withCredentials: true
-            });
-            console.log("Tweets response:", res.data);
-            if (res.data.tweets) {
-                dispatch(getAllTweets(res.data.tweets));
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }
-    const followingTweetHandler = async () => { 
-        try {
-            axios.defaults.withCredentials = true;
-            const res = await axios.get(`${TWEET_API_END_POINT}/followingtweets/${id}`);
-            console.log("Following tweets:", res.data);
-            if (res.data.tweets) {
-                dispatch(getAllTweets(res.data.tweets));
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
     useEffect(() => {
+        const fetchMyTweets = async () => {
+            try {
+                const res = await axios.get(`${TWEET_API_END_POINT}/alltweets/${id}`, {
+                    withCredentials: true
+                });
+                if (res.data.tweets) {
+                    dispatch(getAllTweets(res.data.tweets));
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        const followingTweetHandler = async () => { 
+            try {
+                axios.defaults.withCredentials = true;
+                const res = await axios.get(`${TWEET_API_END_POINT}/followingtweets/${id}`);
+                if (res.data.tweets) {
+                    dispatch(getAllTweets(res.data.tweets));
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
         if (id) {
             if (isActive) {
                 fetchMyTweets();
@@ -43,6 +41,7 @@ const useGetMyTweets = (id) => {
                 followingTweetHandler();
             }
         }
-    }, [isActive, refresh, id, fetchMyTweets, followingTweetHandler]);
+    }, [isActive, refresh, id, dispatch]);
 };
+
 export default useGetMyTweets;

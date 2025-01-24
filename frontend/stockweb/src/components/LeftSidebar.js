@@ -6,7 +6,8 @@ import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 import { USER_API_END_POINT } from '../utils/constant';
 import toast from "react-hot-toast";
-import { getMyProfile, getOtherUsers, getUser } from '../redux/userSlice';
+import { logout } from '../redux/userSlice';
+
 
 const LeftSidebar = () => {
     const { user } = useSelector(store => store.user);
@@ -15,14 +16,17 @@ const LeftSidebar = () => {
 
     const logoutHandler = async () => {
         try {
-            const res = await axios.get(`${USER_API_END_POINT}/logout`);
-            dispatch(getUser(null));
-            dispatch(getOtherUsers(null));
-            dispatch(getMyProfile(null));
+            const res = await axios.get(`${USER_API_END_POINT}/logout`, {
+                withCredentials: true
+            });
+            
+            dispatch(logout());
+            
             navigate('/login');
             toast.success(res.data.message);
         } catch (error) {
-            console.log(error);
+            console.error('Logout error:', error);
+            toast.error('Error logging out');
         }
     }
 

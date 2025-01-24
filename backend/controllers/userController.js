@@ -302,25 +302,56 @@ export const follow = async (req, res) => {
     }
 };
 
-export const unfollow = async (req,res) => {
+export const unfollow = async (req, res) => {
     try {
-        const loggedInUserId = req.body.id; 
-        const userId = req.params.id; 
-        const loggedInUser = await User.findById(loggedInUserId);//patel
-        const user = await User.findById(userId);//keshav
-        if(loggedInUser.following.includes(userId)){
-            await user.updateOne({$pull:{followers:loggedInUserId}});
-            await loggedInUser.updateOne({$pull:{following:userId}});
-        }else{
+        const userToUnfollowId = req.params.id;
+        const currentUserId = req.user._id;
+
+        if (userToUnfollowId === currentUserId.toString()) {
             return res.status(400).json({
-                message:`User has not followed yet`
-            })
-        };
+                success: false,
+                message: "Invalid operation"
+            });
+        }
+
+        const [userToUnfollow, currentUser] = await Promise.all([
+            User.findById(userToUnfollowId),
+            User.findById(currentUserId)
+        ]);
+
+        if (!userToUnfollow || !currentUser) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        if (!currentUser.following.includes(userToUnfollowId)) {
+            return res.status(400).json({
+                success: false,
+                message: "You are not following this user"
+            });
+        }
+
+        // Update both users atomically
+        await Promise.all([
+            User.findByIdAndUpdate(currentUserId, 
+                { $pull: { following: userToUnfollowId } }
+            ),
+            User.findByIdAndUpdate(userToUnfollowId, 
+                { $pull: { followers: currentUserId } }
+            )
+        ]);
+
         return res.status(200).json({
-            message:`${loggedInUser.name} unfollow to ${user.name}`,
-            success:true
-        })
+            success: true,
+            message: "Successfully unfollowed user"
+        });
     } catch (error) {
-        console.log(error);
+        console.error('Unfollow error:', error);
+        return res.status(500).json({
+            success: false,
+            message: "Error unfollowing user"
+        });
     }
-}
+};

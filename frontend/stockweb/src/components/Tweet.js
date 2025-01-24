@@ -11,8 +11,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { getRefresh } from '../redux/tweetSlice';
 import { timeSince } from "../utils/constant";
 
-const DEFAULT_PROFILE_PIC = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
-
 const Tweet = ({ tweet }) => {
     const { user } = useSelector(store => store.user); 
     const dispatch = useDispatch();
@@ -26,6 +24,7 @@ const Tweet = ({ tweet }) => {
     const tweetUser = tweet?.userId;
     const hasLiked = tweet?.like?.includes(user?._id);
     const profilePicUrl = tweetUser?.profile?.profilePicture || 
+                         (tweet?.userDetails && tweet?.userDetails[0]?.profile?.profilePicture) ||
                          "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
 
     const likeOrDislikeHandler = async (id) => {

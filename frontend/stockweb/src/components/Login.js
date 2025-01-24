@@ -38,6 +38,7 @@ const Login = () => {
         ); 
         
         if(res?.data?.success) {
+          localStorage.setItem('token', res.data.token);
           dispatch(getUser(res?.data?.user));
           navigate("/");
           toast.success(res?.data?.message);

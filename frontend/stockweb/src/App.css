@@ -29,3 +29,29 @@ body {
     background-color: #333333 !important;
     color: #ffffff !important;
 }
+
+.follow-button {
+    min-width: 100px;
+    padding: 8px 16px;
+    border-radius: 9999px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.follow-button:not(.following) {
+    background-color: #000;
+    color: #fff;
+    border: none;
+}
+
+.follow-button.following {
+    background-color: #fff;
+    color: #000;
+    border: 1px solid #ccc;
+}
+
+.follow-button.following:hover {
+    background-color: #fde8e8;
+    border-color: #f56565;
+    color: #dc2626;
+}

@@ -21,7 +21,13 @@ const userSlice = createSlice({
             state.user = null;
             state.loading = false;
             state.error = null;
+            state.myProfile = null;
+            state.otherUsers = [];
+            state.profile = null;
             localStorage.removeItem('user');
+            if (state.user) {
+                state.user.following = [];
+            }
         },
         // multiple actions
         getUser:(state,action)=>{
@@ -29,6 +35,10 @@ const userSlice = createSlice({
                 ...action.payload,
                 following: action.payload.following || []
             };
+            localStorage.setItem('user', JSON.stringify({
+                ...action.payload,
+                following: action.payload.following || []
+            }));
         },
         getOtherUsers:(state,action)=>{
             state.otherUsers = action.payload;
@@ -54,7 +64,7 @@ const userSlice = createSlice({
         }
     }
 });
-export const {getUser, getOtherUsers,getMyProfile,followingUpdate,setProfile} = userSlice.actions;
+export const {getUser, getOtherUsers,getMyProfile,followingUpdate,setProfile,loginSuccess,logout} = userSlice.actions;
 export default userSlice.reducer;
 
 

@@ -8,7 +8,7 @@ import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 import { USER_API_END_POINT } from '../utils/constant';
 import toast from "react-hot-toast"
-import { followingUpdate } from '../redux/userSlice';
+import { followingUpdate, getUser } from '../redux/userSlice';
 import { getRefresh } from '../redux/tweetSlice';
 import Tweet from './Tweet';
 
@@ -114,6 +114,25 @@ const Profile = () => {
         }
     }, [id]);
 
+    useEffect(() => {
+        const syncUserData = async () => {
+            try {
+                const response = await axios.get(`${USER_API_END_POINT}/profile/${user?._id}`, {
+                    withCredentials: true
+                });
+                if (response.data.user) {
+                    dispatch(getUser(response.data.user)); // This will update the following list
+                }
+            } catch (error) {
+                console.error("Error syncing user data:", error);
+            }
+        };
+
+        if (user?._id) {
+            syncUserData();
+        }
+    }, []); // Run once when component mounts
+
     const profileUser = currentProfile?.user;
     const profileData = currentProfile?.profile;
     const profileTweets = tweets?.filter(tweet => tweet?.userId?._id === id);
@@ -128,34 +147,27 @@ const Profile = () => {
 
     const followAndUnfollowHandler = async () => {
         try {
-            // Ensure user.following exists
-            const following = user.following || [];
+            const following = user?.following || [];
             const isFollowing = following.includes(id);
-            
             const endpoint = isFollowing ? 'unfollow' : 'follow';
-            console.log('Follow attempt:', {
-                endpoint,
-                userId: user?._id,
-                targetId: id,
-                currentFollowing: following
-            });
 
             const response = await axios.post(
                 `${USER_API_END_POINT}/${endpoint}/${id}`,
                 {},
                 {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                        'Content-Type': 'application/json'
-                    }
+                    withCredentials: true  // Use this instead of manual token
                 }
             );
 
             if (response.data.success) {
+                // Update local state immediately
                 dispatch(followingUpdate(id));
+                // Refresh the profile data
+                const updatedProfile = await axios.get(`${USER_API_END_POINT}/profile/${id}`, {
+                    withCredentials: true
+                });
+                setCurrentProfile(updatedProfile.data);
                 toast.success(response.data.message);
-            } else {
-                toast.error(response.data.message || 'Failed to update follow status');
             }
         } catch (error) {
             console.error('Follow/Unfollow error:', error);
@@ -220,9 +232,23 @@ const Profile = () => {
                     ) : (
                         <button 
                             onClick={followAndUnfollowHandler}
-                            className="follow-button"
+                            className={`px-4 py-2 rounded-full font-bold transition-all duration-200 min-w-[100px] ${
+                                user?.following?.includes(id) 
+                                    ? "bg-white text-black border border-gray-300 hover:bg-[#ffcdd2] hover:border-[#ef5350] hover:text-[#c62828]" 
+                                    : "bg-[#1da1f2] text-white border-none hover:bg-[#1a91da]"
+                            }`}
+                            onMouseEnter={(e) => {
+                                if (user?.following?.includes(id)) {
+                                    e.target.textContent = 'Unfollow';
+                                }
+                            }}
+                            onMouseLeave={(e) => {
+                                if (user?.following?.includes(id)) {
+                                    e.target.textContent = 'Following';
+                                }
+                            }}
                         >
-                            {getFollowButtonText()}
+                            {user?.following?.includes(id) ? 'Following' : 'Follow'}
                         </button>
                     )}
                 </div>

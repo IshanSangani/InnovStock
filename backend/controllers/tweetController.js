@@ -116,43 +116,92 @@ export const getAllTweets = async (req, res) => {
         });
     }
 };
-export const getFollowingTweets = async (req,res) =>{
+export const getFollowingTweets = async (req, res) => {
     try {
         const id = req.params.id;
-        const loggedInUser = await User.findById(id); 
-        const followingUserTweet = await Promise.all(
-            loggedInUser.following.map(async (otherUsersId) => {
-                return Tweet.find({ userId: otherUsersId })
-                    .populate({
-                        path: 'userId',
-                        select: 'name username',
-                        populate: {
-                            path: 'profile',
-                            select: 'profilePicture'
-                        }
-                    });
-            })
-        );
+        const loggedInUser = await User.findById(id);
+        
+        if (!loggedInUser?.following || loggedInUser.following.length === 0) {
+            return res.status(200).json({
+                tweets: []
+            });
+        }
+
+        // Get tweets from followed users
+        const tweets = await Tweet.find({ 
+            userId: { $in: loggedInUser.following } 
+        })
+        .populate({
+            path: 'userId',
+            select: 'name username profile',
+            populate: {
+                path: 'profile',
+                select: 'profilePicture'
+            }
+        })
+        .sort({ createdAt: -1 });
+
+        // Get user profiles separately
+        const userIds = tweets
+            .filter(tweet => tweet.userId)
+            .map(tweet => tweet.userId._id);
+
+        const profiles = await Profile.find({
+            userId: { $in: userIds }
+        });
+
+        // Map profiles to tweets
+        const tweetsWithProfiles = tweets.map(tweet => {
+            if (!tweet.userId) return tweet;
+
+            const userProfile = profiles.find(
+                profile => profile.userId.toString() === tweet.userId._id.toString()
+            );
+
+            return {
+                ...tweet.toObject(),
+                userId: {
+                    ...tweet.userId.toObject(),
+                    profile: userProfile || null
+                }
+            };
+        });
+
         return res.status(200).json({
-            tweets: [].concat(...followingUserTweet)
+            tweets: tweetsWithProfiles,
+            success: true
         });
     } catch (error) {
-        console.log(error);
+        console.error('Error fetching following tweets:', error);
+        return res.status(500).json({
+            success: false,
+            message: "Error fetching tweets"
+        });
     }
-}
+};
 export const getUserTweets = async (req, res) => {
     try {
         const { id } = req.params;
         const tweets = await Tweet.find({ userId: id })
-            .populate('userDetails', 'name username')
+            .populate({
+                path: 'userId',
+                select: 'name username profile',
+                populate: {
+                    path: 'profile',
+                    select: 'profilePicture'
+                }
+            })
             .sort({ createdAt: -1 });
 
-        return res.status(200).json(tweets);
+        return res.status(200).json({
+            success: true,
+            tweets: tweets
+        });
     } catch (error) {
-        console.log(error);
+        console.error("Error fetching user tweets:", error);
         return res.status(500).json({
-            message: "Error fetching tweets",
-            success: false
+            success: false,
+            message: "Error fetching tweets"
         });
     }
 };
