@@ -21,31 +21,60 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
-        console.log("Attempting login with email:", email);
-        const res = await axios.post(
-            `${USER_API_END_POINT}/login`,
-            { email, password },
-            {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                withCredentials: true
+        if (isLogin) {
+            // Login logic
+            const res = await axios.post(
+                `${USER_API_END_POINT}/login`,
+                { email, password },
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    withCredentials: true
+                }
+            );
+            
+            if (res?.data?.success) {
+                localStorage.setItem('token', res.data.token);
+                dispatch(getUser(res?.data?.user));
+                navigate("/");
+                toast.success(res?.data?.message);
             }
-        );
-        
-        if (res?.data?.success) {
-            localStorage.setItem('token', res.data.token);
-            dispatch(getUser(res?.data?.user));
-            navigate("/");
-            toast.success(res?.data?.message);
+        } else {
+            // Signup logic
+            if (!name || !username || !email || !password) {
+                toast.error("All fields are required");
+                return;
+            }
+            
+            const res = await axios.post(
+                `${USER_API_END_POINT}/register`,
+                { name, username, email, password },
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    withCredentials: true
+                }
+            );
+
+            if (res?.data?.success) {
+                toast.success(res?.data?.message);
+                setIsLogin(true); // Switch to login form after successful registration
+                // Clear the form
+                setName("");
+                setUsername("");
+                setEmail("");
+                setPassword("");
+            }
         }
     } catch (error) {
-        console.error('Login error details:', {
+        console.error(isLogin ? 'Login error:' : 'Signup error:', {
             message: error.message,
             response: error.response?.data,
             status: error.response?.status
         });
-        toast.error(error.response?.data?.message || 'Login failed');
+        toast.error(error.response?.data?.message || (isLogin ? 'Login failed' : 'Signup failed'));
     } finally {
         setLoading(false);
     }

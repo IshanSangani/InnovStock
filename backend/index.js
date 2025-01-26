@@ -18,7 +18,10 @@ app.use(cookieParser());
 
 // CORS configuration
 const corsOptions = {
-    origin: "https://innov-stock.vercel.app",
+    origin: [
+        "https://innov-stock.vercel.app",
+        "http://localhost:3000"  // Add this for local development
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token'],
@@ -27,9 +30,15 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Add this before your routes
+// Update the middleware to handle both production and development origins
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'https://innov-stock.vercel.app');
+    const allowedOrigins = ['https://innov-stock.vercel.app', 'http://localhost:3000'];
+    const origin = req.headers.origin;
+    
+    if (allowedOrigins.includes(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+    }
+    
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization');
